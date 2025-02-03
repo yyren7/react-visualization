@@ -1,6 +1,6 @@
 // src/App.jsx
 import React, { useState } from 'react';
-import { Neo4jGraph } from '@neo4j-labs/graph-explorer';
+import { Neo4jGraph } from 'neo4j-driver';
 
 const App = () => {
   const [command, setCommand] = useState('');
