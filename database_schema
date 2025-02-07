@@ -1,0 +1,75 @@
+// Database Schema Visualization
+digraph database_schema {
+	graph [rankdir=TB splines=ortho]
+	flowcharts [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD BGCOLOR="lightblue"><b>flowcharts</b></TD></TR>
+  <TR><TD ALIGN="LEFT">created_at : timestamp with time zone</TD></TR>
+  <TR><TD ALIGN="LEFT">global_parameters : jsonb</TD></TR>
+  <TR><TD ALIGN="LEFT">flowchat_history_id : uuid</TD></TR>
+  <TR><TD ALIGN="LEFT">flowchart_id : uuid</TD></TR>
+  <TR><TD ALIGN="LEFT">updated_at : timestamp with time zone</TD></TR>
+  <TR><TD ALIGN="LEFT">flowchart_name : character varying</TD></TR>
+  <TR><TD ALIGN="LEFT">description : text</TD></TR>
+</TABLE>>]
+	nodes [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD BGCOLOR="lightblue"><b>nodes</b></TD></TR>
+  <TR><TD ALIGN="LEFT">node_id : uuid</TD></TR>
+  <TR><TD ALIGN="LEFT">flowchart_id : uuid</TD></TR>
+  <TR><TD ALIGN="LEFT">position_y : integer</TD></TR>
+  <TR><TD ALIGN="LEFT">created_at : timestamp with time zone</TD></TR>
+  <TR><TD ALIGN="LEFT">updated_at : timestamp with time zone</TD></TR>
+  <TR><TD ALIGN="LEFT">parameters : jsonb</TD></TR>
+  <TR><TD ALIGN="LEFT">position_x : integer</TD></TR>
+  <TR><TD ALIGN="LEFT">node_type : character varying</TD></TR>
+  <TR><TD ALIGN="LEFT">api_name : character varying</TD></TR>
+  <TR><TD ALIGN="LEFT">description : text</TD></TR>
+</TABLE>>]
+	chats [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD BGCOLOR="lightblue"><b>chats</b></TD></TR>
+  <TR><TD ALIGN="LEFT">chat_id : uuid</TD></TR>
+  <TR><TD ALIGN="LEFT">user_id : uuid</TD></TR>
+  <TR><TD ALIGN="LEFT">start_time : timestamp with time zone</TD></TR>
+  <TR><TD ALIGN="LEFT">end_time : timestamp with time zone</TD></TR>
+  <TR><TD ALIGN="LEFT">action_id : uuid</TD></TR>
+  <TR><TD ALIGN="LEFT">session_status : character varying</TD></TR>
+</TABLE>>]
+	edges [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD BGCOLOR="lightblue"><b>edges</b></TD></TR>
+  <TR><TD ALIGN="LEFT">created_at : timestamp with time zone</TD></TR>
+  <TR><TD ALIGN="LEFT">updated_at : timestamp with time zone</TD></TR>
+  <TR><TD ALIGN="LEFT">edge_id : uuid</TD></TR>
+  <TR><TD ALIGN="LEFT">target_node_id : uuid</TD></TR>
+  <TR><TD ALIGN="LEFT">flowchart_id : uuid</TD></TR>
+  <TR><TD ALIGN="LEFT">source_node_id : uuid</TD></TR>
+  <TR><TD ALIGN="LEFT">edge_label : character varying</TD></TR>
+  <TR><TD ALIGN="LEFT">edge_type : character varying</TD></TR>
+  <TR><TD ALIGN="LEFT">description : text</TD></TR>
+</TABLE>>]
+	messages [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD BGCOLOR="lightblue"><b>messages</b></TD></TR>
+  <TR><TD ALIGN="LEFT">message_id : uuid</TD></TR>
+  <TR><TD ALIGN="LEFT">chat_id : uuid</TD></TR>
+  <TR><TD ALIGN="LEFT">message_time : timestamp with time zone</TD></TR>
+  <TR><TD ALIGN="LEFT">message_role : character varying</TD></TR>
+  <TR><TD ALIGN="LEFT">message_content : text</TD></TR>
+</TABLE>>]
+	flowchart_histories [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD BGCOLOR="lightblue"><b>flowchart_histories</b></TD></TR>
+  <TR><TD ALIGN="LEFT">history_id : uuid</TD></TR>
+  <TR><TD ALIGN="LEFT">history_name : character varying</TD></TR>
+  <TR><TD ALIGN="LEFT">history_description : text</TD></TR>
+</TABLE>>]
+	user_chat_histories [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD BGCOLOR="lightblue"><b>user_chat_histories</b></TD></TR>
+  <TR><TD ALIGN="LEFT">chat_history_id : uuid</TD></TR>
+  <TR><TD ALIGN="LEFT">user_id : uuid</TD></TR>
+  <TR><TD ALIGN="LEFT">action_time : timestamp with time zone</TD></TR>
+  <TR><TD ALIGN="LEFT">action_type : character varying</TD></TR>
+  <TR><TD ALIGN="LEFT">action_description : text</TD></TR>
+</TABLE>>]
+	nodes -> flowcharts [label="flowchart_id -> flowchart_id"]
+	edges -> flowcharts [label="flowchart_id -> flowchart_id"]
+	edges -> nodes [label="source_node_id -> node_id"]
+	edges -> nodes [label="target_node_id -> node_id"]
+	flowcharts -> flowchart_histories [label="flowchat_history_id -> history_id"]
+}
