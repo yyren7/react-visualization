@@ -1,0 +1,57 @@
+// Robot Task Flowchart
+digraph {
+	graph [rankdir=TB]
+	"50fd0d17-91d2-45c2-9388-14f4cd2b70ec" [label="ControlNode
+EnableRobot
+Enable Robot" shape=box]
+	"d399f67b-7bbb-4c0d-a0ec-7a5333856730" [label="LoopStartNode
+
+Loop Start (3 iterations)
+Parameters:
+loop_type: CountLoop
+iterations: 3
+counter_variable_name: loop_count" shape=box]
+	"512ca0eb-670c-40af-8e5c-26c7db84d38f" [label="MotionNode
+MovJ
+Move to Position 1
+Parameters:
+X: 200
+Y: 0
+Z: 100
+R: 0" shape=box]
+	"06f126cc-dc00-47cc-9a10-e30b71515f49" [label="IONode
+ToolDOExecute
+Close Gripper
+Parameters:
+index: 1
+status: 1" shape=box]
+	"700b0e1b-9eca-4690-b45f-4679469f84b0" [label="MotionNode
+MovJ
+Move to Position 2
+Parameters:
+X: 0
+Y: 200
+Z: 100
+R: 0" shape=box]
+	"734eeee5-c688-4d75-b7d3-bf85955402a5" [label="IONode
+ToolDOExecute
+Open Gripper
+Parameters:
+index: 1
+status: 0" shape=box]
+	"3511e3b9-ba5f-4e0d-bf8d-584d48162420" [label="LoopEndNode
+
+Loop End" shape=box]
+	"33352b76-451c-4501-9c44-84cef4c4f691" [label="ControlNode
+DisableRobot
+Disable Robot" shape=box]
+	"50fd0d17-91d2-45c2-9388-14f4cd2b70ec" -> "d399f67b-7bbb-4c0d-a0ec-7a5333856730" [label=""]
+	"d399f67b-7bbb-4c0d-a0ec-7a5333856730" -> "512ca0eb-670c-40af-8e5c-26c7db84d38f" [label=""]
+	"512ca0eb-670c-40af-8e5c-26c7db84d38f" -> "06f126cc-dc00-47cc-9a10-e30b71515f49" [label=""]
+	"06f126cc-dc00-47cc-9a10-e30b71515f49" -> "700b0e1b-9eca-4690-b45f-4679469f84b0" [label=""]
+	"700b0e1b-9eca-4690-b45f-4679469f84b0" -> "734eeee5-c688-4d75-b7d3-bf85955402a5" [label=""]
+	"734eeee5-c688-4d75-b7d3-bf85955402a5" -> "3511e3b9-ba5f-4e0d-bf8d-584d48162420" [label=""]
+	"3511e3b9-ba5f-4e0d-bf8d-584d48162420" -> "d399f67b-7bbb-4c0d-a0ec-7a5333856730" [label="Loop
+Condition: loop_count < 3"]
+	"3511e3b9-ba5f-4e0d-bf8d-584d48162420" -> "33352b76-451c-4501-9c44-84cef4c4f691" [label="End Loop"]
+}
