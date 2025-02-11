@@ -1,5 +1,6 @@
-// Improved Database Schema Visualization
-digraph database_schema {
+// Improved Database Schema Visualization v3 - Node and Edge Level Versioning
+
+digraph database_schema_v3 {
     graph [rankdir=TB splines=ortho]
 
     node [shape=plaintext]
@@ -30,17 +31,41 @@ digraph database_schema {
       <TR><TD ALIGN="LEFT">updated_at : TIMESTAMP WITH TIME ZONE</TD></TR>
     </TABLE>>]
 
-    flowchart_histories [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
-      <TR><TD BGCOLOR="lightblue"><b>flowchart_histories</b></TD></TR>
-      <TR><TD ALIGN="LEFT">history_id : UUID (PK)</TD></TR>
+    flowchart_updates [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+      <TR><TD BGCOLOR="lightblue"><b>flowchart_updates</b></TD></TR>
+      <TR><TD ALIGN="LEFT">update_id : UUID (PK)</TD></TR>
       <TR><TD ALIGN="LEFT">flowchart_id : UUID (FK to flowcharts)</TD></TR>
       <TR><TD ALIGN="LEFT">user_id : UUID (FK to users)</TD></TR>
-      <TR><TD ALIGN="LEFT">history_name : VARCHAR(255)</TD></TR>
-      <TR><TD ALIGN="LEFT">history_description : TEXT</TD></TR>
-      <TR><TD ALIGN="LEFT">operation_type : VARCHAR(50)</TD></TR>
-      <TR><TD ALIGN="LEFT">operation_time : TIMESTAMP WITH TIME ZONE</TD></TR>
-      <TR><TD ALIGN="LEFT">change_summary : TEXT</TD></TR>
+      <TR><TD ALIGN="LEFT">update_type : VARCHAR(50)</TD></TR> // e.g., 'manual_node_edge', 'dialogue_full', 'dialogue_partial'
+      <TR><TD ALIGN="LEFT">update_description : TEXT</TD></TR>
+      <TR><TD ALIGN="LEFT">updated_at : TIMESTAMP WITH TIME ZONE</TD></TR>
+      <TR><TD ALIGN="LEFT">dialogue_session_id : UUID (FK to chats) OPTIONAL</TD></TR> // If dialogue-based update
     </TABLE>>]
+
+    node_updates [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+      <TR><TD BGCOLOR="lightblue"><b>node_updates</b></TD></TR>
+      <TR><TD ALIGN="LEFT">update_id : UUID (PK)</TD></TR>
+      <TR><TD ALIGN="LEFT">node_id : UUID (FK to nodes)</TD></TR>
+      <TR><TD ALIGN="LEFT">user_id : UUID (FK to users)</TD></TR>
+      <TR><TD ALIGN="LEFT">updated_at : TIMESTAMP WITH TIME ZONE</TD></TR>
+      <TR><TD ALIGN="LEFT">change_type : VARCHAR(50)</TD></TR> // e.g., 'create', 'update', 'delete'
+      <TR><TD ALIGN="LEFT">previous_node_data : JSONB/TEXT</TD></TR>
+      <TR><TD ALIGN="LEFT">current_node_data : JSONB/TEXT</TD></TR>
+      <TR><TD ALIGN="LEFT">flowchart_update_id : UUID (FK to flowchart_updates) OPTIONAL</TD></TR> // If part of a larger flowchart update
+    </TABLE>>]
+
+    edge_updates [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+      <TR><TD BGCOLOR="lightblue"><b>edge_updates</b></TD></TR>
+      <TR><TD ALIGN="LEFT">update_id : UUID (PK)</TD></TR>
+      <TR><TD ALIGN="LEFT">edge_id : UUID (FK to edges)</TD></TR>
+      <TR><TD ALIGN="LEFT">user_id : UUID (FK to users)</TD></TR>
+      <TR><TD ALIGN="LEFT">updated_at : TIMESTAMP WITH TIME ZONE</TD></TR>
+      <TR><TD ALIGN="LEFT">change_type : VARCHAR(50)</TD></TR> // e.g., 'create', 'update', 'delete'
+      <TR><TD ALIGN="LEFT">previous_edge_data : JSONB/TEXT</TD></TR>
+      <TR><TD ALIGN="LEFT">current_edge_data : JSONB/TEXT</TD></TR>
+      <TR><TD ALIGN="LEFT">flowchart_update_id : UUID (FK to flowchart_updates) OPTIONAL</TD></TR> // If part of a larger flowchart update
+    </TABLE>>]
+
 
     chats [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
       <TR><TD BGCOLOR="lightblue"><b>chats</b></TD></TR>
@@ -59,11 +84,10 @@ digraph database_schema {
       <TR><TD ALIGN="LEFT">chat_history_id : UUID (PK)</TD></TR>
       <TR><TD ALIGN="LEFT">chat_id : UUID (FK to chats)</TD></TR>
       <TR><TD ALIGN="LEFT">user_id : UUID (FK to users)</TD></TR>
-      <TR><TD ALIGN="LEFT">operation_type : VARCHAR(50)</TD></TR>
+      <TR><TD ALIGN="LEFT">operation_type : VARCHAR(50)</TD></TR> // e.g., 'llm_advice', 'dialogue_flowchart_partial', 'dialogue_flowchart_full'
       <TR><TD ALIGN="LEFT">operation_time : TIMESTAMP WITH TIME ZONE</TD></TR>
       <TR><TD ALIGN="LEFT">operation_description : TEXT</TD></TR>
-      <TR><TD ALIGN="LEFT">previous_state : JSONB/TEXT</TD></TR>
-      <TR><TD ALIGN="LEFT">current_state : JSONB/TEXT</TD></TR>
+      <TR><TD ALIGN="LEFT">flowchart_update_id : UUID (FK to flowchart_updates) OPTIONAL</TD></TR> // If chat led to flowchart update
     </TABLE>>]
 
     messages [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
@@ -107,22 +131,35 @@ digraph database_schema {
       <TR><TD ALIGN="LEFT">updated_at : TIMESTAMP WITH TIME ZONE</TD></TR>
     </TABLE>>]
 
-    flowcharts -> flowchart_histories [label="flowchart_history_id -> history_id", taillabel="1", headlabel="*"]
+    flowcharts -> flowchart_updates [label="flowchart_id -> flowchart_id", taillabel="1", headlabel="*"]
     flowcharts -> users [label="creator_user_id -> user_id", taillabel="1", headlabel="*"]
-    flowchart_histories -> flowcharts [label="flowchart_id -> flowchart_id", taillabel="*", headlabel="1"]
-    flowchart_histories -> users [label="user_id -> user_id", taillabel="*", headlabel="1"]
+    flowchart_updates -> flowcharts [label="flowchart_id -> flowchart_id", taillabel="*", headlabel="1"]
+    flowchart_updates -> users [label="user_id -> user_id", taillabel="*", headlabel="1"]
+    flowchart_updates -> chats [label="dialogue_session_id -> chat_id", taillabel="*", headlabel="1"] // Dialogue session that caused update (optional)
+
+    nodes -> node_updates [label="node_id -> node_id", taillabel="1", headlabel="*"]
+    nodes -> flowcharts [label="flowchart_id -> flowchart_id", taillabel="*", headlabel="1"]
+    node_updates -> nodes [label="node_id -> node_id", taillabel="*", headlabel="1"]
+    node_updates -> users [label="user_id -> user_id", taillabel="*", headlabel="1"]
+    node_updates -> flowchart_updates [label="flowchart_update_id -> update_id", taillabel="*", headlabel="1"] // Node update part of flowchart update (optional)
+
+
+    edges -> edge_updates [label="edge_id -> edge_id", taillabel="1", headlabel="*"]
+    edges -> flowcharts [label="flowchart_id -> flowchart_id", taillabel="*", headlabel="1"]
+    edges -> nodes [label="source_node_id -> node_id", taillabel="*", headlabel="1"]
+    edges -> nodes [label="target_node_id -> node_id", taillabel="*", headlabel="1"]
+    edge_updates -> edges [label="edge_id -> edge_id", taillabel="*", headlabel="1"]
+    edge_updates -> users [label="user_id -> user_id", taillabel="*", headlabel="1"]
+    edge_updates -> flowchart_updates [label="flowchart_update_id -> update_id", taillabel="*", headlabel="1"] // Edge update part of flowchart update (optional)
+
 
     chats -> chat_session_histories [label="chat_history_id -> chat_history_id", taillabel="1", headlabel="*"]
     chats -> users [label="user_id -> user_id", taillabel="1", headlabel="*"]
     chat_session_histories -> chats [label="chat_id -> chat_id", taillabel="*", headlabel="1"]
     chat_session_histories -> users [label="user_id -> user_id", taillabel="*", headlabel="1"]
+    chat_session_histories -> flowchart_updates [label="flowchart_update_id -> update_id", taillabel="*", headlabel="1"] // Chat history entry linked to flowchart update (optional)
+
 
     messages -> chats [label="chat_id -> chat_id", taillabel="*", headlabel="1"]
     messages -> users [label="user_id -> user_id", taillabel="*", headlabel="1"]
-
-    nodes -> flowcharts [label="flowchart_id -> flowchart_id", taillabel="*", headlabel="1"]
-
-    edges -> flowcharts [label="flowchart_id -> flowchart_id", taillabel="*", headlabel="1"]
-    edges -> nodes [label="source_node_id -> node_id", taillabel="*", headlabel="1"]
-    edges -> nodes [label="target_node_id -> node_id", taillabel="*", headlabel="1"]
 }
