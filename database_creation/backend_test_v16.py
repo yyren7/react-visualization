@@ -4,10 +4,10 @@ import datetime
 import json
 
 # Database connection details - Replace with your actual credentials
-DB_HOST = "your_db_host"
-DB_NAME = "your_db_name"
-DB_USER = "your_db_user"
-DB_PASSWORD = "your_db_password"
+DB_HOST = "otocolobus.c3imo6ogk8ee.ap-southeast-2.rds.amazonaws.com"
+DB_NAME = "postgres"
+DB_USER = "otocolobus"
+DB_PASSWORD = "WcM1hCwTVBfm6XnvXm29"
 DB_PORT = 5432
 
 def connect_db():
@@ -36,10 +36,10 @@ def test_crud_operations():
         # Create
         cursor.execute(
             "INSERT INTO users (user_id, username, email, created_at) VALUES (%s, %s, %s, %s)",
-            (user_id, "testuser", "test@example.com", created_at)
+            (str(user_id), "testuser", "test@example.com", created_at)
         )
         # Read
-        cursor.execute("SELECT username, email FROM users WHERE user_id = %s", (user_id,))
+        cursor.execute("SELECT username, email FROM users WHERE user_id = %s", (str(user_id),))
         user_data = cursor.fetchone()
         assert user_data is not None and user_data[0] == "testuser"
 
@@ -52,10 +52,10 @@ def test_crud_operations():
         # Create
         cursor.execute(
             "INSERT INTO flowcharts (flowchart_id, creator_user_id, flowchart_name, created_at) VALUES (%s, %s, %s, %s)",
-            (flowchart_id, creator_user_id, "Test Flowchart", created_at)
+            (str(flowchart_id), str(creator_user_id), "Test Flowchart", created_at)
         )
         # Read
-        cursor.execute("SELECT flowchart_name FROM flowcharts WHERE flowchart_id = %s", (flowchart_id,))
+        cursor.execute("SELECT flowchart_name FROM flowcharts WHERE flowchart_id = %s", (str(flowchart_id),))
         flowchart_data = cursor.fetchone()
         assert flowchart_data is not None and flowchart_data[0] == "Test Flowchart"
 
@@ -69,10 +69,10 @@ def test_crud_operations():
         # Create
         cursor.execute(
             "INSERT INTO flowchart_versions (version_id, flowchart_id, version_number, nodes_json, edges_json, created_at) VALUES (%s, %s, %s, %s::jsonb, %s::jsonb, %s)",
-            (version_id, flowchart_id, 1, nodes_json, edges_json, created_at)
+            (str(version_id), str(flowchart_id), 1, nodes_json, edges_json, created_at)
         )
         # Read
-        cursor.execute("SELECT version_number FROM flowchart_versions WHERE version_id = %s", (version_id,))
+        cursor.execute("SELECT version_number FROM flowchart_versions WHERE version_id = %s", (str(version_id),))
         version_data = cursor.fetchone()
         assert version_data is not None and version_data[0] == 1
 
@@ -85,10 +85,10 @@ def test_crud_operations():
         # Create
         cursor.execute(
             "INSERT INTO chats (chat_id, user_id, chat_title, created_at) VALUES (%s, %s, %s, %s)",
-            (chat_id, user_id_chat, "Test Chat", created_at)
+            (str(chat_id), str(user_id_chat), "Test Chat", created_at)
         )
         # Read
-        cursor.execute("SELECT chat_title FROM chats WHERE chat_id = %s", (chat_id,))
+        cursor.execute("SELECT chat_title FROM chats WHERE chat_id = %s", (str(chat_id),))
         chat_data = cursor.fetchone()
         assert chat_data is not None and chat_data[0] == "Test Chat"
 
@@ -100,10 +100,10 @@ def test_crud_operations():
         # Create
         cursor.execute(
             "INSERT INTO messages (message_id, chat_id, user_id, message_content, created_at, sender_type) VALUES (%s, %s, %s, %s, %s, %s)",
-            (message_id, chat_id, user_id, "Hello", created_at, 'user')
+            (str(message_id), str(chat_id), str(user_id), "Hello", created_at, 'user')
         )
         # Read
-        cursor.execute("SELECT message_content FROM messages WHERE message_id = %s", (message_id,))
+        cursor.execute("SELECT message_content FROM messages WHERE message_id = %s", (str(message_id),))
         message_data = cursor.fetchone()
         assert message_data is not None and message_data[0] == "Hello"
 
@@ -115,10 +115,10 @@ def test_crud_operations():
         # Create
         cursor.execute(
             "INSERT INTO message_attachments (attachment_id, message_id, file_name, created_at) VALUES (%s, %s, %s, %s)",
-            (attachment_id, message_id, "test_file.txt", created_at)
+            (str(attachment_id), str(message_id), "test_file.txt", created_at)
         )
         # Read
-        cursor.execute("SELECT file_name FROM message_attachments WHERE attachment_id = %s", (attachment_id,))
+        cursor.execute("SELECT file_name FROM message_attachments WHERE attachment_id = %s", (str(attachment_id),))
         attachment_data = cursor.fetchone()
         assert attachment_data is not None and attachment_data[0] == "test_file.txt"
 
@@ -130,10 +130,10 @@ def test_crud_operations():
         # Create
         cursor.execute(
             "INSERT INTO nodes (node_id, flowchart_id, node_type, created_at) VALUES (%s, %s, %s, %s)",
-            (node_id, flowchart_id, "start", created_at)
+            (str(node_id), str(flowchart_id), "start", created_at)
         )
         # Read
-        cursor.execute("SELECT node_type FROM nodes WHERE node_id = %s", (node_id,))
+        cursor.execute("SELECT node_type FROM nodes WHERE node_id = %s", (str(node_id),))
         node_data = cursor.fetchone()
         assert node_data is not None and node_data[0] == "start"
 
@@ -148,10 +148,10 @@ def test_crud_operations():
         # Create
         cursor.execute(
             "INSERT INTO edges (edge_id, flowchart_id, source_node_id, target_node_id, edge_type, created_at) VALUES (%s, %s, %s, %s, %s, %s)",
-            (edge_id, flowchart_id, source_node_id, target_node_id, "sequence", created_at)
+            (str(edge_id), str(flowchart_id), str(source_node_id), str(target_node_id), "sequence", created_at)
         )
         # Read
-        cursor.execute("SELECT edge_type FROM edges WHERE edge_id = %s", (edge_id,))
+        cursor.execute("SELECT edge_type FROM edges WHERE edge_id = %s", (str(edge_id),))
         edge_data = cursor.fetchone()
         assert edge_data is not None and edge_data[0] == "sequence"
 

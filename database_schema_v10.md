@@ -1,8 +1,7 @@
-// Improved Database Schema Visualization v8 - Added flowchart_chats table
-// Added chat_mode to chats table
-// Added optional affects_flowchart to messages
+// Improved Database Schema Visualization v10 - Removed redundant updated_by_user_id fields
+// Added sender_type to messages table
 
-digraph database_schema_v8 {
+digraph database_schema_v10 {
     graph [rankdir=TB splines=ortho]
 
     node [shape=plaintext]
@@ -42,7 +41,6 @@ digraph database_schema_v8 {
       <TR><TD ALIGN="LEFT">session_status : VARCHAR(50)</TD></TR>
       <TR><TD ALIGN="LEFT">created_at : TIMESTAMP WITH TIME ZONE</TD></TR>
       <TR><TD ALIGN="LEFT">updated_at : TIMESTAMP WITH TIME ZONE</TD></TR>
-      <TR><TD ALIGN="LEFT">updated_by_user_id : UUID (FK to users)</TD></TR>
       <TR><TD ALIGN="LEFT">deleted_at : TIMESTAMP WITH TIME ZONE</TD></TR>
       <TR><TD ALIGN="LEFT">chat_mode : VARCHAR(50)</TD></TR>
     </TABLE>>]
@@ -52,7 +50,7 @@ digraph database_schema_v8 {
       <TR><TD BGCOLOR="lightblue"><b>messages</b></TD></TR>
       <TR><TD ALIGN="LEFT">message_id : UUID (PK)</TD></TR>
       <TR><TD ALIGN="LEFT">chat_id : UUID (FK to chats)</TD></TR>
-      <TR><TD ALIGN="LEFT">user_id : UUID (FK to users)</TD></TR>
+      <TR><TD ALIGN="LEFT">user_id : UUID (FK to users) (NULLABLE)</TD></TR>
       <TR><TD ALIGN="LEFT">message_type : VARCHAR(50)</TD></TR>
       <TR><TD ALIGN="LEFT">message_content : TEXT</TD></TR>
       <TR><TD ALIGN="LEFT">created_at : TIMESTAMP WITH TIME ZONE</TD></TR>
@@ -61,6 +59,8 @@ digraph database_schema_v8 {
       <TR><TD ALIGN="LEFT">deleted_at : TIMESTAMP WITH TIME ZONE</TD></TR>
       <TR><TD ALIGN="LEFT">message_role : VARCHAR(50)</TD></TR>
       <TR><TD ALIGN="LEFT">affects_flowchart : BOOLEAN</TD></TR>
+      <TR><TD ALIGN="LEFT">previous_message_id : UUID (FK to messages)</TD></TR>
+      <TR><TD ALIGN="LEFT">sender_type : VARCHAR(50)</TD></TR>
     </TABLE>>]
 
     nodes [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
@@ -76,7 +76,6 @@ digraph database_schema_v8 {
       <TR><TD ALIGN="LEFT">position_y : INTEGER</TD></TR>
       <TR><TD ALIGN="LEFT">created_at : TIMESTAMP WITH TIME ZONE</TD></TR>
       <TR><TD ALIGN="LEFT">updated_at : TIMESTAMP WITH TIME ZONE</TD></TR>
-      <TR><TD ALIGN="LEFT">updated_by_user_id : UUID (FK to users)</TD></TR>
       <TR><TD ALIGN="LEFT">deleted_at : TIMESTAMP WITH TIME ZONE</TD></TR>
     </TABLE>>]
 
@@ -92,7 +91,6 @@ digraph database_schema_v8 {
       <TR><TD ALIGN="LEFT">edge_data : JSONB</TD></TR>
       <TR><TD ALIGN="LEFT">created_at : TIMESTAMP WITH TIME ZONE</TD></TR>
       <TR><TD ALIGN="LEFT">updated_at : TIMESTAMP WITH TIME ZONE</TD></TR>
-      <TR><TD ALIGN="LEFT">updated_by_user_id : UUID (FK to users)</TD></TR>
       <TR><TD ALIGN="LEFT">deleted_at : TIMESTAMP WITH TIME ZONE</TD></TR>
     </TABLE>>]
   
@@ -108,17 +106,15 @@ digraph database_schema_v8 {
     flowcharts -> users [label="creator_user_id -> user_id", taillabel="1", headlabel="*"]
 
     nodes -> flowcharts [label="flowchart_id -> flowchart_id", taillabel="*", headlabel="1"]
-    nodes -> users [label="updated_by_user_id -> user_id", taillabel="*", headlabel="1"]
 
     edges -> flowcharts [label="flowchart_id -> flowchart_id", taillabel="*", headlabel="1"]
     edges -> nodes [label="source_node_id -> node_id", taillabel="*", headlabel="1"]
     edges -> nodes [label="target_node_id -> node_id", taillabel="*", headlabel="1"]
-    edges -> users [label="updated_by_user_id -> user_id", taillabel="*", headlabel="1"]
 
 
     messages -> chats [label="chat_id -> chat_id", taillabel="*", headlabel="1"]
     messages -> users [label="user_id -> user_id", taillabel="*", headlabel="1"]
-    messages -> users [label="updated_by_user_id -> user_id", taillabel="*", headlabel="1"]
+    messages -> messages [label="previous_message_id -> message_id", taillabel="*", headlabel="1"]
   
     flowchart_chats -> flowcharts [label="flowchart_id -> flowchart_id", taillabel="*", headlabel="1"]
     flowchart_chats -> chats [label="chat_id -> chat_id", taillabel="*", headlabel="1"]

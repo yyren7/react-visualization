@@ -1,8 +1,6 @@
-// Improved Database Schema Visualization v8 - Added flowchart_chats table
-// Added chat_mode to chats table
-// Added optional affects_flowchart to messages
+// Improved Database Schema Visualization v9 - Added previous_message_id to messages
 
-digraph database_schema_v8 {
+digraph database_schema_v9 {
     graph [rankdir=TB splines=ortho]
 
     node [shape=plaintext]
@@ -61,6 +59,7 @@ digraph database_schema_v8 {
       <TR><TD ALIGN="LEFT">deleted_at : TIMESTAMP WITH TIME ZONE</TD></TR>
       <TR><TD ALIGN="LEFT">message_role : VARCHAR(50)</TD></TR>
       <TR><TD ALIGN="LEFT">affects_flowchart : BOOLEAN</TD></TR>
+      <TR><TD ALIGN="LEFT">previous_message_id : UUID (FK to messages)</TD></TR>
     </TABLE>>]
 
     nodes [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
@@ -119,6 +118,7 @@ digraph database_schema_v8 {
     messages -> chats [label="chat_id -> chat_id", taillabel="*", headlabel="1"]
     messages -> users [label="user_id -> user_id", taillabel="*", headlabel="1"]
     messages -> users [label="updated_by_user_id -> user_id", taillabel="*", headlabel="1"]
+    messages -> messages [label="previous_message_id -> message_id", taillabel="*", headlabel="1"]
   
     flowchart_chats -> flowcharts [label="flowchart_id -> flowchart_id", taillabel="*", headlabel="1"]
     flowchart_chats -> chats [label="chat_id -> chat_id", taillabel="*", headlabel="1"]
