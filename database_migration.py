@@ -1,23 +1,39 @@
 import psycopg2
 
-try:
-    conn = psycopg2.connect(user='otocolobus', password='am', dbname='otocolobus')
-    cursor = conn.cursor()
+# Database connection details (from test_connection.py)
+DB_HOST = "otocolobus.c3imo6ogk8ee.ap-southeast-2.rds.amazonaws.com"
+DB_NAME = "ocotolobus"  # Changed DB_NAME to "ocotolobus"
+DB_USER = "otocolobus"
+DB_PASSWORD = "WcM1hCwTVBfm6XnvXm29"
+DB_PORT = 5432
 
-    # 检查外键约束是否存在
-    cursor.execute("SELECT constraint_name FROM information_schema.table_constraints WHERE table_name = 'messages' AND constraint_type = 'FOREIGN KEY' AND constraint_name = 'messages_chat_id_fkey'")
-    constraint_exists = cursor.fetchone()
+def apply_database_migration():
+    """Applies database migration to remove userid from messages table."""
+    conn = None
+    try:
+        conn = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASSWORD, port=DB_PORT)
+        cursor = conn.cursor()
 
-    if not constraint_exists:
-        # 添加外键约束
-        cursor.execute("ALTER TABLE messages ADD CONSTRAINT messages_chat_id_fkey FOREIGN KEY (chat_id) REFERENCES chats(chat_id)")
+        # SQL commands to drop foreign key constraint and column
+        sql_commands = [
+            "ALTER TABLE messages DROP CONSTRAINT IF EXISTS messages_user_id_fkey;",
+            "ALTER TABLE messages DROP COLUMN IF EXISTS user_id;"
+        ]
+
+        for command in sql_commands:
+            cursor.execute(command)
+            print(f"Executed SQL command: {command}")
+
         conn.commit()
-        print("Added messages_chat_id_fkey constraint to messages table")
-    else:
-        print("messages_chat_id_fkey constraint already exists on messages table")
+        print("Database migration applied successfully!")
+        return True
 
-    conn.commit()
-    conn.close()
+    except psycopg2.Error as e:
+        print(f"Database migration failed: {e}")
+        return False
+    finally:
+        if conn:
+            conn.close()
 
-except Exception as e:
-    print(f"Connection or query error: {e}")
+if __name__ == "__main__":
+    apply_database_migration()
